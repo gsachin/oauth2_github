@@ -1,0 +1,6 @@
+{
+    "id": "ClientId",
+    "secret": "SecretKey",
+    "name": " ithub-oauth",
+    "redirectURL": "oauthsample://github-oauth"
+}
