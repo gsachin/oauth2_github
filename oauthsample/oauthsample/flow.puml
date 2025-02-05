@@ -1,0 +1,55 @@
+@startuml
+
+actor Agent as A
+participant "Client App" as C
+participant "Azure AD/Okta/LDAP" as IDP_Auth
+participant "Identity Provider (IDP)" as IDP
+participant "Redis Cache" as Redis
+
+A -> C : Open Client App
+A -> IDP_Auth : Authenticate using Company Login
+alt Authentication Successful
+    IDP_Auth -> A : Return Authentication Token
+    A -> C : Pass Authentication Token
+    C -> IDP : /prospective-user-authenticate (Agent ID, Auth Token)
+    IDP -> IDP : Validate Agent ID
+    alt Agent ID Valid
+        IDP -> Redis : Store Access Token with Auth Code
+        IDP -> C : Return Auth Code
+    else Agent ID Invalid
+        IDP -> C : Return Error (Unauthorized Agent)
+    end
+else Authentication Failed
+    IDP_Auth -> A : Return Error (Invalid Credentials)
+end
+
+C -> IDP : \userToken (Auth Code)
+IDP -> Redis : Retrieve Access Token
+alt Auth Code Valid
+    IDP -> C : Return Access Token
+    C -> IDP : Token Management - Check Expiration
+    alt Token Expired
+        C -> IDP : /refreshToken (Refresh Token)
+        IDP -> IDP : Validate Refresh Token
+        alt Refresh Token Valid
+            IDP -> Redis : Issue New Access Token
+            IDP -> C : Return New Access Token
+        else Refresh Token Invalid or Expired
+            IDP -> C : Return Error (Re-authentication Required)
+        end
+    else Token Still Valid
+        IDP -> C : Continue Using Existing Token
+    end
+else Auth Code Invalid
+    IDP -> C : Return Error (Invalid or Expired Auth Code)
+end
+
+C -> IDP : /revokeToken (Access Token)
+alt Access Token Valid
+    IDP -> Redis : Remove Access Token from Cache
+    IDP -> C : Confirmation of Revocation
+else Access Token Invalid
+    IDP -> C : Return Error (Token Not Found or Already Revoked)
+end
+
+@enduml

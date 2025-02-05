@@ -1,6 +1,6 @@
 {
-    "id": "ClientId",
-    "secret": "SecretKey",
+    "id": "f4f20e9571d95a8ca8c0",
+    "secret": "cafc7bc14697962520af9aad747b1eb4f5cf6a67",
     "name": " ithub-oauth",
-    "redirectURL": "oauthsample://github-oauth"
+    "redirectURL": "oauthsample"
 }

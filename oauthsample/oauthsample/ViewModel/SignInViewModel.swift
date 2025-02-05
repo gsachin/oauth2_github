@@ -23,7 +23,7 @@ class SignInViewModel: NSObject, ObservableObject, ASWebAuthenticationPresentati
     func signIn() {
             let signInPromise = Future<URL, Error> { completion in
                 let apiData = GithubAPIConfigurations.load()
-                let authUrl = GithubAuthenticationURLBuilder(clientID:apiData.id)()
+                let authUrl = GithubAuthenticationURLBuilder(clientID:apiData.id, secret:apiData.secret)()
                 
                 let authSession = ASWebAuthenticationSession(
                     url: authUrl, callbackURLScheme:
@@ -72,12 +72,14 @@ public class GithubAuthenticationURLBuilder {
     
     /// Client ID
     let clientID: String
+    let secret:String
     
     init(
         domain: String = "github.com",
-        clientID: String) {
+        clientID: String, secret:String) {
         self.domain = domain
         self.clientID = clientID
+        self.secret = secret
     }
     
     var url: URL {
@@ -88,6 +90,7 @@ public class GithubAuthenticationURLBuilder {
         components.queryItems =
             [
                 "client_id": String(clientID),
+                "secret": secret,
                 "response_type": "token"
             ].map { URLQueryItem(name: $0, value: $1) }
         return components.url!

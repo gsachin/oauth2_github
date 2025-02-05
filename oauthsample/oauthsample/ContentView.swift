@@ -23,6 +23,7 @@ struct ContentView: View {
                         .font(.title3)
                         .multilineTextAlignment(.center)
                         .padding()
+//                    NavigationLink(<#T##titleKey: LocalizedStringKey##LocalizedStringKey#>, destination: <#T##_#>, isActive: <#T##Binding<Bool>#>)
                     Button {
                         viewModel.signIn()
                     } label: {
